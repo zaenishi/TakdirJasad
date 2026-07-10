@@ -107,7 +107,7 @@
 
             <div class="mt-4">
                 <button onclick="shareDanDownload()" 
-                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 cursor-pointer text-sm">
+                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-[0.95] cursor-pointer text-sm">
                     💬 Share & Simpan Hasil
                 </button>
             </div>
@@ -283,43 +283,42 @@
 
         function shareDanDownload() {
             const area = document.getElementById("capture-area");
-            const name = document.getElementById("res-name").innerText.toLowerCase();
-            const textMsg = `Cek kronologi pasca-mati, Cek takdir lu di sini! 🍄🍓: ${window.location.href}`;
-
+            const name = document.getElementById("res-name").innerText.toUpperCase();
+            const textMsg = `Cek kronologi pasca-mati gua atas nama ${name} di web Takdir Jasad Gua! Hasilnya kocak parah 😂 Cek takdir jasad lu juga di sini, buruan: ${window.location.href}`;
+            
             html2canvas(area, {
                 backgroundColor: "#0F172A",
-                scale: 3,
+                scale: 1.5,
                 logging: false,
                 useCORS: true,
                 allowTaint: true
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `takdir_jasad_${name}.png`;
+                link.download = `takdir_jasad_${name.toLowerCase()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
 
                 canvas.toBlob(blob => {
                     if (!blob) {
-                        fallbackShare(textMsg);
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
                         return;
                     }
-                    const file = new File([blob], `takdir_${name}.png`, { type: 'image/png' });
+                    
+                    const file = new File([blob], `takdir_${name.toLowerCase()}.png`, { type: 'image/png' });
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         navigator.share({
                             files: [file],
                             title: 'Takdir Jasad Gua',
                             text: textMsg
-                        }).catch(() => fallbackShare(textMsg));
+                        }).catch(() => {
+                            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+                        });
                     } else {
-                        fallbackShare(textMsg);
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
                     }
                 }, 'image/png');
             });
-        }
-
-        function fallbackShare(msg) {
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
 </body>
