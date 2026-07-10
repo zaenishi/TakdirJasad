@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kilas Balik Pasca-Mati — SiJamur</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;800&family=Space+Grotesk:wght=500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0B0F19;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .heading-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .glow-bg {
+            box-shadow: 0 0 80px 20px rgba(139, 92, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
+
+    <div class="absolute top-[-10%] left-[-20%] w-[600px] h-[600px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-20%] w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <main class="w-full max-w-md mx-auto flex-grow flex flex-col justify-center items-center py-8 z-10">
+        
+        <div class="text-center mb-8">
+            <span class="px-3 py-1 text-xs font-semibold bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20 tracking-wider uppercase">Sijamur Project v1.0</span>
+            <h1 class="heading-font text-3xl font-bold mt-3 bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Takdir Jasad Gua</h1>
+            <p class="text-gray-400 text-sm mt-1">Cek kronologi pasca-mati lu hari ini.</p>
+        </div>
+
+        <div id="input-card" class="w-full bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800 shadow-2xl transition-all duration-500">
+            <div class="mb-5">
+                <label for="username" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Masukkan Nama Lu</label>
+                <input type="text" id="username" placeholder="Contoh: Budi, Zaki, Siska..." autocomplete="off"
+                    class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3.5 text-gray-100 placeholder-gray-600 focus:outline-none focus:border-purple-500 transition-all font-semibold">
+            </div>
+            
+            <button onclick="prosesTakdir()" id="btn-submit"
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-[0.98] cursor-pointer">
+                Cek Takdir Jasad Gua
+            </button>
+            <p id="error-msg" class="text-red-400 text-xs text-center mt-3 hidden"></p>
+        </div>
+
+        <div id="loading-card" class="w-full bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-800 shadow-2xl text-center hidden transition-all duration-500">
+            <div class="inline-block w-12 h-12 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mb-4"></div>
+            <h3 class="heading-font font-bold text-lg text-purple-400 animate-pulse">Mencabut Nyawa...</h3>
+            <p id="loading-text" class="text-gray-500 text-xs mt-1">Menghubungi Izrail...</p>
+        </div>
+
+        <div id="result-card" class="w-full hidden transition-all duration-700 animate-fade-in-up">
+            <div id="capture-area" class="w-full bg-gradient-to-b from-gray-900 to-gray-950 p-6 rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
+                
+                <div class="absolute -right-8 -top-8 text-8xl text-gray-800/10 font-bold heading-font pointer-events-none select-none">RIP</div>
+                
+                <div class="border-b border-gray-800/80 pb-4 mb-4 text-center">
+                    <h2 class="heading-font text-xl font-bold text-gray-200">KILAS BALIK PASCA-MATI</h2>
+                    <p class="text-purple-400 font-bold text-base mt-1" id="res-name">[Nama User]</p>
+                    <p class="text-gray-500 text-[10px] uppercase tracking-widest mt-0.5" id="res-date">10 Juli 2026</p>
+                </div>
+
+                <div class="relative pl-6 border-l border-purple-500/30 space-y-5 my-6 text-sm">
+                    <div class="relative">
+                        <div class="absolute -left-[30px] top-1 w-2.5 h-2.5 rounded-full bg-purple-500 ring-4 ring-purple-500/20"></div>
+                        <span class="text-xs font-bold text-purple-400 block heading-font">Menit ke-5</span>
+                        <p class="text-gray-300 mt-0.5" id="t-1">Loading...</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[30px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-indigo-500/20"></div>
+                        <span class="text-xs font-bold text-indigo-400 block heading-font">Jam ke-3</span>
+                        <p class="text-gray-300 mt-0.5" id="t-2">Loading...</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[30px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-blue-500/20"></div>
+                        <span class="text-xs font-bold text-blue-400 block heading-font">Hari ke-1</span>
+                        <p class="text-gray-300 mt-0.5" id="t-3">Loading...</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[30px] top-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-4 ring-red-500/20"></div>
+                        <span class="text-xs font-bold text-red-400 block heading-font">Hari ke-3</span>
+                        <p class="text-gray-300 mt-0.5" id="t-4">Loading...</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[30px] top-1 w-2.5 h-2.5 rounded-full bg-green-500 ring-4 ring-green-500/20"></div>
+                        <span class="text-xs font-bold text-green-400 block heading-font">Hari ke-7</span>
+                        <p class="text-gray-300 mt-0.5" id="t-5">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-800/80 pt-3 flex justify-between items-center text-[10px] text-gray-500">
+                    <div>Mati itu pasti, masuk fyp itu takdir.</div>
+                    <div class="font-semibold text-purple-400/80 tracking-wider">si jamur - zaenishi</div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button onclick="shareDanDownload()" 
+                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 cursor-pointer text-sm">
+                    💬 Share & Simpan Hasil
+                </button>
+            </div>
+            
+            <button onclick="resetPage()" class="w-full text-center text-xs text-gray-500 hover:text-purple-400 transition-all mt-4 underline cursor-pointer">
+                Coba Nama Lain Besok Saja
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="w-full text-center py-4 border-t border-gray-900 text-xs text-gray-600 z-10 tracking-widest uppercase">
+        Crafted by <span class="text-purple-500/80 font-bold">si jamur - zaenishi</span> &copy; 2026
+    </footer>
+
+    <script>
+        (function() {
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.keyCode === 123 || 
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || 
+                    (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            setInterval(() => {
+                const start = performance.now();
+                debugger;
+                if (performance.now() - start > 100) {
+                    document.body.innerHTML = "<div style='color:white;text-align:center;margin-top:20%;font-family:sans-serif;'>Akses Ditolak.</div>";
+                }
+            }, 50);
+        })();
+
+        const dbMnt5 = [
+            "Emak lu sujud syukur di kamar karena tagihan WiFi sama token listrik langsung turun drastis.",
+            "HP lu langsung disita emak. Untung folder rahasia udah lu amankan pake password sidik jari kaki.",
+            "Kucing lu langsung selebrasi siu dan ngeklaim kasur lu jadi hak milik dia sepenuhnya.",
+            "Malaikat Izrail geleng-geleng kepala, lu log-out dari bumi pas posisi rebahan mangap sambil scroll TIKTOK.",
+            "Arwah lu masih muter-muter di parkiran masjid, panik nyari sendal jepit lu yang ilang pas jumatan.",
+            "Sistem algoritma YouTube lu nangis pas ngeliat riwayat tontonan lu yang gak ada bener-benernya.",
+            "Arwah lu bingung nyari colokan kipas angin karena ngerasa alam kubur hawanya panas bener.",
+            "Token listrik rumah lu bunyi 'tit-tit-tit' pas banget di detik-detik lu mengembuskan napas terakhir.",
+            "Temen lu langsung gercep ngebongkar lomari lu buat nyari liat ada barang berharga yang bisa diloak."
+        ];
+
+        const dbJam3 = [
+            "Temen dekat lu bikin konten foto geser di Instgram pake lagu sad, tapi foto lu ditaro yang paling jelek.",
+            "Grup WA kelas lu mulai ngegosipin lu.",
+            "Gebetan lu yang tadinya cuek tiba-tiba bikin status galau beneran, gara-gara gada bahan gabutan lagi.",
+            "Temen tongkrongan lu sibuk nanya ke emak lu tentang nasib utang patungan beli seblak yang belum lunas.",
+            "Gebetan lu akhirnya bales chat setelah 3 bulan ilang, arwah lu nangis karena jempol udah kaku gak bisa ngetik.",
+            "Bapak lu sibuk nyari dus HP lu buat dijual lagi mumpung harga second-nya masih lumayan tinggi.",
+            "Abang kurir kurir paket bingung karena paket COD lu dateng pas banget jasad lu mau digotong ke ambulans."
+        ];
+
+        const dbHari1 = [
+            "Pas mau dikubur, jasad lu ditolak tanah gara-gara kadar gengsi lu pas hidup ketinggian.",
+            "Tukang gali kuburnya minta izin break sejam dulu gara-gara mau war tiket konser line-up favorit dia.",
+            "Jasad lu dimandiin pake air galon isi ulang biar kerasa lebih dingin, higienis, dan estetik kata temen lu.",
+            "Kain kafan lu sengaja di-custom baggy biar skena abisz.",
+            "Kuburan lu meledak disamber petir.",
+            "Pak Ustadnya salah sebut nama lu pas mimpin doa talqin, malah manggil nama akun Mobile Legends lu.",
+            "Pelayat pada dateng pake outfit hitam-hitam aesthetic lengkap dengan sepatu docmart biar dikira anak skena.",
+            "Jasad lu wangi aroma vape rasa mangga es karena disemprot temen tongkrongan sebagai penghormatan terakhir.",
+            "Keranda lu pas roared ke masjid jalannya oleng parah, gara-gara yang gotong pada sibuk gosipin lu di jalan."
+        ];
+
+        const dbHari3 = [
+            "Keluarga lu pasrah jasad lu dikasih ke anjing herder tetangga, tapi anjingnya emoh karena daging lu isinya 90% overthinking.",
+            "Jasad lu hanyut pas banjir, diselamatani lumba-lumba, lalu lu resmi diangkat jadi ketua karang taruna bawah laut.",
+            "Kuburan lu mendadak glow-in-the-dark akibat sisa-sisa radiasi begadang main game tiap malem di kamar gelap.",
+            "Arwah lu langsung ditunjuk jadi admin server gaib pusat karena lu punya pengalaman ngetik cepet pas adu bacot di komen TikTok.",
+            "Jasad lu dievakuasi alien karena dikira fosil manusia purba jenis mageran akibat struktur tulang lu yang udah encok.",
+            "Rumput di kuburan lu gak mau tumbuh, malah numbuh kabel charger type-C saking seringnya lu minjem pas hidup.",
+            "Arwah lu dapet kerjaan sampingan jadi hantu penguji nyali di pasar malam, gajinya dibayar pake dupa wangi seminggu sekali.",
+            "Jasad lu diawetkan di museum sebagai contoh manusia paling konsisten rebahan sepanjang abad ini.",
+            "Malaikat Munkar dan Nakir mutusin buat nunda sidang tanya-jawab karena lu malah bales pertanyaannya pake stiker WA.",
+            "Kuburan lu dipasangin papan barcode QRIS buat para pelayat yang mau ngasih uang yasinan secara cashless biar praktis."
+        ];
+
+        const dbHari5 = [
+            "Tahlilan malam ke-7 rumah lu rame parah, tapi pelayat dateng murni demi berburu nasi kotak gratisan.",
+            "Temen lu dateng yasinan cuma buat ngambil rokok gratisan.",
+            "Akun sosmed lu resmi di-memorialkan, tapi feeds-nya penuh tagihan SPayLater yang belum sempet lu lunasin.",
+            "Arwah lu dapet penghargaan 'Hantu Paling Mager' karena gak pernah neror orang, maunya rebahan muul di dalam kubur.",
+            "Keluarga lu udah ikhlas, bahkan kamar tidur lu udah sukses disulap jadi gudang.",
+            "Temen tongkrongan lu bikin turnamen game internal buat mengenang hilangnya beban tim terbesar mereka.",
+            "Meme muka lu pas tidur disebar di grup tongkrongan buat memperingati satu minggu lu pensiun dari duniawi.",
+            "Baju-baju lu udah laku dijual murah di car free day sama adek lu buat modal dia top-up epep.",
+            "Di akhirat lu resmi gabung ke faksi 'Kaum Begadang Malam' bareng arwah-arwah ngantuk yang matanya panda semua."
+        ];
+
+        function generateHash(str) {
+            let hash = 0;
+            const combinedStr = str.trim().toLowerCase() + new Date().toDateString();
+            for (let i = 0; i < combinedStr.length; i++) {
+                hash = combinedStr.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash);
+        }
+
+        const loadingTexts = [
+            "Menghubungi Izrail...",
+            "Mengecek kuota sisa umur...",
+            "Menyita HP dan menghapus history browser...",
+            "Menyiapkan kain kafan ukuran custom...",
+            "Menghitung kalkulasi beban keluarga..."
+        ];
+
+        function prosesTakdir() {
+            const nameInput = document.getElementById("username").value.trim();
+            const errorMsg = document.getElementById("error-msg");
+            
+            if (!nameInput) {
+                errorMsg.innerText = "Isi dulu nama lu, masa arwah tanpa nama!";
+                errorMsg.classList.remove("hidden");
+                return;
+            }
+            errorMsg.classList.add("hidden");
+
+            const today = new Date().toDateString();
+            const lastCheck = localStorage.getItem("last_check_takdir");
+            const lastName = localStorage.getItem("last_name_takdir");
+
+            if (lastCheck === today && lastName !== nameInput.toLowerCase()) {
+                errorMsg.innerText = "Lu cuma punya jatah mati 1 kali sehari! Coba nama ini lagi besok.";
+                errorMsg.classList.remove("hidden");
+                return;
+            }
+
+            document.getElementById("input-card").classList.add("hidden");
+            document.getElementById("loading-card").classList.remove("hidden");
+
+            let textIndex = 0;
+            const interval = setInterval(() => {
+                textIndex = (textIndex + 1) % loadingTexts.length;
+                document.getElementById("loading-text").innerText = loadingTexts[textIndex];
+            }, 600);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                localStorage.setItem("last_check_takdir", today);
+                localStorage.setItem("last_name_takdir", nameInput.toLowerCase());
+
+                const hash = generateHash(nameInput);
+                const idx1 = hash % dbMnt5.length;
+                const idx2 = (hash + 3) % dbJam3.length;
+                const idx3 = (hash + 7) % dbHari1.length;
+                const idx4 = (hash + 11) % dbHari3.length;
+                const idx5 = (hash + 17) % dbHari5.length;
+
+                document.getElementById("res-name").innerText = nameInput.toUpperCase();
+                document.getElementById("res-date").innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                document.getElementById("t-1").innerText = dbMnt5[idx1];
+                document.getElementById("t-2").innerText = dbJam3[idx2];
+                document.getElementById("t-3").innerText = dbHari1[idx3];
+                document.getElementById("t-4").innerText = dbHari3[idx4];
+                document.getElementById("t-5").innerText = dbHari5[idx5];
+
+                document.getElementById("loading-card").classList.add("hidden");
+                document.getElementById("result-card").classList.remove("hidden");
+            }, 3000);
+        }
+
+        function resetPage() {
+            document.getElementById("username").value = "";
+            document.getElementById("result-card").classList.add("hidden");
+            document.getElementById("input-card").classList.remove("hidden");
+        }
+
+        function shareDanDownload() {
+            const area = document.getElementById("capture-area");
+            const name = document.getElementById("res-name").innerText.toLowerCase();
+            const textMsg = `Cek kronologi pasca-mati, Cek takdir lu di sini! 🍄🍓: ${window.location.href}`;
+
+            html2canvas(area, {
+                backgroundColor: "#0F172A",
+                scale: 3,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `takdir_jasad_${name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        fallbackShare(textMsg);
+                        return;
+                    }
+                    const file = new File([blob], `takdir_${name}.png`, { type: 'image/png' });
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Takdir Jasad Gua',
+                            text: textMsg
+                        }).catch(() => fallbackShare(textMsg));
+                    } else {
+                        fallbackShare(textMsg);
+                    }
+                }, 'image/png');
+            });
+        }
+
+        function fallbackShare(msg) {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
