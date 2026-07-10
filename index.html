@@ -48,7 +48,7 @@
             </div>
             
             <button onclick="prosesTakdir()" id="btn-submit"
-                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-purple-600/20 active:scale-[0.98] cursor-pointer">
+                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-purple-600/20 active:scale-[0.98]">
                 Cek Takdir Jasad Gua
             </button>
             <p id="error-msg" class="text-red-400 text-xs text-center mt-3 hidden"></p>
@@ -60,7 +60,7 @@
             <p id="loading-text" class="text-gray-500 text-xs mt-1">Menghubungi Izrail...</p>
         </div>
 
-        <div id="result-card" class="w-full hidden transition-all duration-700 animate-fade-in-up">
+        <div id="result-card" class="w-full hidden transition-all duration-700">
             <div id="capture-area" class="w-full bg-gradient-to-b from-gray-900 to-gray-950 p-6 rounded-2xl border border-gray-800 shadow-2xl relative overflow-hidden">
                 
                 <div class="absolute -right-8 -top-8 text-8xl text-gray-800/10 font-bold heading-font pointer-events-none select-none">RIP</div>
@@ -106,13 +106,13 @@
             </div>
 
             <div class="mt-4">
-                <button onclick="shareDanDownload()" 
-                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-[0.95] cursor-pointer text-sm">
+                <button onclick="shareDanDownload()" id="btn-share"
+                    class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold py-3 px-4 rounded-xl flex justify-center items-center gap-2 shadow-lg shadow-emerald-600/10 active:scale-95 text-sm">
                     💬 Share & Simpan Hasil
                 </button>
             </div>
             
-            <button onclick="resetPage()" class="w-full text-center text-xs text-gray-500 hover:text-purple-400 transition-all mt-4 underline cursor-pointer">
+            <button onclick="resetPage()" class="w-full text-center text-xs text-gray-500 hover:text-purple-400 transition-all mt-4 underline">
                 Coba Nama Lain Besok Saja
             </button>
         </div>
@@ -160,7 +160,7 @@
             "Grup WA kelas lu mulai ngegosipin lu.",
             "Gebetan lu yang tadinya cuek tiba-tiba bikin status galau beneran, gara-gara gada bahan gabutan lagi.",
             "Temen tongkrongan lu sibuk nanya ke emak lu tentang nasib utang patungan beli seblak yang belum lunas.",
-            "Gebetan lu akhirnya bales chat setelah 3 bulan ilang, arwah lu nangis karena jempol udah kaku gak bisa ngetik.",
+            "Gebetan lu akhirnya bales chat setelah 3 semester ilang, arwah lu nangis karena jempol udah kaku gak bisa ngetik.",
             "Bapak lu sibuk nyari dus HP lu buat dijual lagi mumpung harga second-nya masih lumayan tinggi.",
             "Abang kurir kurir paket bingung karena paket COD lu dateng pas banget jasad lu mau digotong ke ambulans."
         ];
@@ -293,31 +293,33 @@
                 useCORS: true,
                 allowTaint: true
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `takdir_jasad_${name.toLowerCase()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                try {
+                    const link = document.createElement('a');
+                    link.download = `takdir_jasad_${name.toLowerCase()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch(e) {}
 
-                canvas.toBlob(blob => {
-                    if (!blob) {
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
-                        return;
-                    }
-                    
-                    const file = new File([blob], `takdir_${name.toLowerCase()}.png`, { type: 'image/png' });
-                    
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            files: [file],
-                            title: 'Takdir Jasad Gua',
-                            text: textMsg
-                        }).catch(() => {
+                try {
+                    canvas.toBlob(blob => {
+                        if (blob && navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], 't.png', {type: 'image/png'})] })) {
+                            const file = new File([blob], `takdir_${name.toLowerCase()}.png`, { type: 'image/png' });
+                            navigator.share({
+                                files: [file],
+                                title: 'Takdir Jasad Gua',
+                                text: textMsg
+                            }).catch(() => {
+                                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+                            });
+                        } else {
                             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
-                        });
-                    } else {
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
-                    }
-                }, 'image/png');
+                        }
+                    }, 'image/png');
+                } catch(err) {
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
+                }
+            }).catch(() => {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`, '_blank');
             });
         }
     </script>
